@@ -1,0 +1,61 @@
+package api
+
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/hdlproject/es-transaction-service/config"
+	"github.com/hdlproject/es-transaction-service/interface_adapter/database"
+	"github.com/hdlproject/es-transaction-service/interface_adapter/messaging"
+	"github.com/hdlproject/es-transaction-service/use_case/interactor"
+	"log"
+	"net/http"
+)
+
+type (
+	TransactionController struct {
+		transactionService *transactionService
+	}
+)
+
+func RegisterTransactionAPI(router *gin.RouterGroup) {
+	configInstance, _ := config.GetInstance()
+	mongoClient, _ := database.GetMongoDB(configInstance.EventStorage)
+	rabbitMQClient, _ := messaging.GetRabbitMQClient(configInstance.EventBus)
+	eventPublisher, _ := messaging.GetRabbitMQPublisher(rabbitMQClient)
+
+	transactionPublisher, err := messaging.NewTransactionPublisher(eventPublisher)
+	if err != nil {
+		panic(err)
+	}
+
+	transactionRouter := router.Group("/transaction")
+	transactionRouter.POST("/topup", NewTransactionController(interactor.NewTopUpUseCase(
+		database.NewTransactionEventRepo(mongoClient),
+		transactionPublisher,
+	)).TopUp)
+}
+
+func NewTransactionController(topUpUseCase *interactor.TopUp) *TransactionController {
+	return &TransactionController{
+		transactionService: newTransactionService(
+			topUpUseCase,
+		),
+	}
+}
+
+func (instance *TransactionController) TopUp(ctx *gin.Context) {
+	request, err := topUpRequest{}.parse(ctx)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(http.StatusBadRequest, topUpResponse{Ok: false, Message: parseRequestFailure})
+		return
+	}
+
+	response, err := instance.transactionService.topUp(request)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(http.StatusInternalServerError, topUpResponse{Ok: false, Message: defaultProcessError})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
