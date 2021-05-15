@@ -29,7 +29,7 @@ func (topUpRequest) parse(ctx *gin.Context) (request topUpRequest, err error) {
 	return request, nil
 }
 
-func (instance topUpRequest) getUseCaseRequest() interactor.TopUpRequest {
+func (instance topUpRequest) getUseCase() interactor.TopUpRequest {
 	return interactor.TopUpRequest{
 		UserID: instance.UserID,
 		Amount: instance.Amount,

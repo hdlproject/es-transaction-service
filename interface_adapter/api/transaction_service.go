@@ -18,7 +18,7 @@ func newTransactionService(topUpUseCase *interactor.TopUp) *transactionService {
 }
 
 func (instance *transactionService) topUp(request topUpRequest) (topUpResponse, error) {
-	useCaseRequest := request.getUseCaseRequest()
+	useCaseRequest := request.getUseCase()
 
 	useCaseResponse, err := instance.topUpUseCase.TopUp(useCaseRequest)
 	if err != nil {

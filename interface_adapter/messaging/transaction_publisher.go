@@ -9,14 +9,28 @@ import (
 )
 
 type (
+	transactionEvent struct {
+		ID     string      `json:"id"`
+		Type   string      `json:"type"`
+		Params interface{} `json:"params"`
+	}
+
+	topUp struct {
+		UserID uint   `json:"user_id"`
+		Amount uint64 `json:"amount"`
+	}
+
 	transactionPublisher struct {
-		publisher *RabbitMQPublisher
+		publisher    *RabbitMQPublisher
+		exchangeName string
 	}
 )
 
 func NewTransactionPublisher(publisher *RabbitMQPublisher) (output_port.TransactionPublisher, error) {
+	exchangeName := "transactions_direct"
+
 	err := publisher.channel.ExchangeDeclare(
-		"transactions_topic",
+		exchangeName,
 		"direct",
 		true,
 		false,
@@ -29,18 +43,21 @@ func NewTransactionPublisher(publisher *RabbitMQPublisher) (output_port.Transact
 	}
 
 	return &transactionPublisher{
-		publisher: publisher,
+		publisher:    publisher,
+		exchangeName: exchangeName,
 	}, nil
 }
 
 func (instance *transactionPublisher) Publish(event entity.TransactionEvent) error {
-	body, err := json.Marshal(event)
+	publishedEvent := transactionEvent{}.fromEntity(event)
+
+	body, err := json.Marshal(publishedEvent)
 	if err != nil {
 		return helper.WrapError(err)
 	}
 
 	err = instance.publisher.channel.Publish(
-		"transactions_topic",
+		instance.exchangeName,
 		string(event.Type),
 		false,
 		false,
@@ -53,4 +70,25 @@ func (instance *transactionPublisher) Publish(event entity.TransactionEvent) err
 	}
 
 	return nil
+}
+
+func (instance transactionEvent) fromEntity(transactionEventEntity entity.TransactionEvent) transactionEvent {
+	var params interface{}
+	switch v := transactionEventEntity.Params.(type) {
+	case entity.TopUp:
+		params = topUp{}.fromEntity(v)
+	}
+
+	return transactionEvent{
+		ID:     transactionEventEntity.ID,
+		Type:   string(transactionEventEntity.Type),
+		Params: params,
+	}
+}
+
+func (instance topUp) fromEntity(topUpEntity entity.TopUp) topUp {
+	return topUp{
+		UserID: topUpEntity.UserID,
+		Amount: topUpEntity.Amount,
+	}
 }

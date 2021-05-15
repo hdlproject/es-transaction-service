@@ -18,7 +18,9 @@ type (
 
 func RegisterTransactionAPI(router *gin.RouterGroup) {
 	configInstance, _ := config.GetInstance()
+
 	mongoClient, _ := database.GetMongoDB(configInstance.EventStorage)
+
 	rabbitMQClient, _ := messaging.GetRabbitMQClient(configInstance.EventBus)
 	eventPublisher, _ := messaging.GetRabbitMQPublisher(rabbitMQClient)
 
@@ -28,10 +30,12 @@ func RegisterTransactionAPI(router *gin.RouterGroup) {
 	}
 
 	transactionRouter := router.Group("/transaction")
-	transactionRouter.POST("/topup", NewTransactionController(interactor.NewTopUpUseCase(
-		database.NewTransactionEventRepo(mongoClient),
-		transactionPublisher,
-	)).TopUp)
+	transactionRouter.POST("/topup", NewTransactionController(
+		interactor.NewTopUpUseCase(
+			database.NewTransactionEventRepo(mongoClient),
+			transactionPublisher,
+		),
+	).TopUp)
 }
 
 func NewTransactionController(topUpUseCase *interactor.TopUp) *TransactionController {
