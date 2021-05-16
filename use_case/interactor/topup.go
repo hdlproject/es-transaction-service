@@ -40,10 +40,11 @@ func (instance *TopUp) TopUp(request TopUpRequest) (response TopUpResponse, err 
 			Amount: request.Amount,
 		},
 	}
-	_, err = instance.transactionEventRepo.Insert(transactionEvent)
+	eventID, err := instance.transactionEventRepo.Insert(transactionEvent)
 	if err != nil {
 		return TopUpResponse{}, helper.WrapError(err)
 	}
+	transactionEvent.ID = eventID
 
 	err = instance.transactionPublisher.Publish(transactionEvent)
 	if err != nil {

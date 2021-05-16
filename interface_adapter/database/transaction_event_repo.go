@@ -9,13 +9,13 @@ import (
 )
 
 type (
-	TransactionEvent struct {
+	transactionEvent struct {
 		ID     primitive.ObjectID `bson:"_id,omitempty"`
 		Type   string             `bson:"type,omitempty"`
 		Params interface{}        `bson:"params,omitempty"`
 	}
 
-	TopUp struct {
+	topUp struct {
 		UserID uint   `bson:"user_id,omitempty"`
 		Amount uint64 `bson:"amount,omitempty"`
 	}
@@ -36,7 +36,7 @@ func NewTransactionEventRepo(mongoClient *MongoClient) output_port.TransactionEv
 }
 
 func (instance *transactionEventRepo) Insert(event entity.TransactionEvent) (string, error) {
-	data, _ := TransactionEvent{}.getData(event)
+	data, _ := transactionEvent{}.getData(event)
 	result, err := instance.transactionEventCollection.InsertOne(mongoClient.Context, data)
 	if err != nil {
 		return "", helper.WrapError(err)
@@ -45,31 +45,31 @@ func (instance *transactionEventRepo) Insert(event entity.TransactionEvent) (str
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (TransactionEvent) getData(transactionEventEntity entity.TransactionEvent) (TransactionEvent, error) {
+func (transactionEvent) getData(transactionEventEntity entity.TransactionEvent) (transactionEvent, error) {
 	var id primitive.ObjectID
 	var err error
 	if transactionEventEntity.ID != "" {
 		id, err = primitive.ObjectIDFromHex(transactionEventEntity.ID)
 		if err != nil {
-			return TransactionEvent{}, helper.WrapError(err)
+			return transactionEvent{}, helper.WrapError(err)
 		}
 	}
 
 	var params interface{}
 	switch v := transactionEventEntity.Params.(type) {
 	case entity.TopUp:
-		params = TopUp{}.getData(v)
+		params = topUp{}.getData(v)
 	}
 
-	return TransactionEvent{
+	return transactionEvent{
 		ID:     id,
 		Type:   string(transactionEventEntity.Type),
 		Params: params,
 	}, nil
 }
 
-func (TopUp) getData(topUpEntity entity.TopUp) TopUp {
-	return TopUp{
+func (topUp) getData(topUpEntity entity.TopUp) topUp {
+	return topUp{
 		UserID: topUpEntity.UserID,
 		Amount: topUpEntity.Amount,
 	}

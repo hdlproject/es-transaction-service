@@ -1,6 +1,23 @@
 version: '3.1'
 
 services:
+  postgresql:
+    image: postgres:11-alpine
+    restart: always
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - 5432:5432
+    networks:
+      - postgresql
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    env_file:
+      - .env
+
   mongo:
     image: mongo:4.4-bionic
     restart: always
@@ -43,6 +60,8 @@ services:
       - .env
 
 volumes:
+  postgresql-data:
+    driver: local
   mongo-data:
     driver: local
   rabbitmq-data:
@@ -51,5 +70,7 @@ volumes:
     driver: local
 
 networks:
+  postgresql:
+    driver: bridge
   rabbitmq:
     driver: bridge
