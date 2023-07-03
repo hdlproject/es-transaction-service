@@ -33,7 +33,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 			return
 		}
 
-		result <- s
+		//result <- s
 	})
 	if err != nil {
 		t.Error(err)
