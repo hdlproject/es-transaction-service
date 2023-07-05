@@ -3,8 +3,10 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/hdlproject/es-transaction-service/helper"
+
 	"github.com/spf13/viper"
+
+	"github.com/hdlproject/es-transaction-service/helper"
 )
 
 type (
@@ -12,6 +14,7 @@ type (
 		Port         string
 		EventStorage EventStorage
 		EventBus     EventBus
+		Kafka        Kafka
 	}
 
 	EventStorage struct {
@@ -27,6 +30,11 @@ type (
 		Port     string
 		Username string
 		Password string
+	}
+
+	Kafka struct {
+		Host string
+		Port string
 	}
 )
 
@@ -97,6 +105,10 @@ func getConfig() (Config, error) {
 			Port:     viper.GetString("EVENT_BUS_PORT"),
 			Username: viper.GetString("EVENT_BUS_USERNAME"),
 			Password: eventBusPassword,
+		},
+		Kafka: Kafka{
+			Host: viper.GetString("KAFKA_HOST"),
+			Port: viper.GetString("KAFKA_PORT"),
 		},
 	}, nil
 }

@@ -3,17 +3,24 @@ package messaging
 import (
 	"testing"
 	"time"
+
+	"github.com/hdlproject/es-transaction-service/config"
 )
 
 func TestKafkaConsumer_Consume(t *testing.T) {
 	testTimeout := 10 * time.Minute
 
-	consumer, err := GetKafkaConsumer()
+	kafkaConfig := config.Kafka{
+		Host: "localhost",
+		Port: "29092",
+	}
+
+	consumer, err := GetKafkaConsumer(kafkaConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	producer, err := GetKafkaProducer()
+	producer, err := GetKafkaProducer(kafkaConfig)
 	if err != nil {
 		t.Fatal(err)
 	}

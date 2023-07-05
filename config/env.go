@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/hdlproject/es-transaction-service/helper"
 	"github.com/spf13/viper"
+
+	"github.com/hdlproject/es-transaction-service/helper"
 )
 
 type (
@@ -25,6 +26,9 @@ func newEnvConfig(configurable Configurable) (Configurable, error) {
 		"EVENT_BUS_PORT",
 		"EVENT_BUS_USERNAME",
 		"EVENT_BUS_PASSWORD",
+
+		"KAFKA_HOST",
+		"KAFKA_PORT",
 	}
 
 	var err error

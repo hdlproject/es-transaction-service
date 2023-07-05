@@ -108,7 +108,7 @@ services:
       KSQL_BOOTSTRAP_SERVERS: kafka:9092
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: 'true'
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: 'true'
-#      KSQL_KSQL_QUERIES_FILE: /init-ksqldb.sql
+#      KSQL_KSQL_QUERIES_FILE: /init-ksqldb.sql # uncomment if you want to use headless mode
 #      KSQL_KSQL_STREAMS_PROCESSING_GUARANTEE: exactly_once
 
   ksqldb-cli:
@@ -123,18 +123,37 @@ services:
     entrypoint: /bin/sh
     tty: true
 
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    restart: always
+#  kafka-ui:
+#    image: provectuslabs/kafka-ui:latest
+#    restart: always
+#    networks:
+#      - kafka
+#    depends_on:
+#      - kafka
+#    ports:
+#      - 8080:8080
+#    environment:
+#      DYNAMIC_CONFIG_ENABLED: 'true'
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
     networks:
       - kafka
     depends_on:
       - kafka
+      - ksqldb-server
     ports:
-      - 8080:8080
+      - 9021:9021
     environment:
-      DYNAMIC_CONFIG_ENABLED: 'true'
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092
+      CONTROL_CENTER_KSQL_KSQLDB1_URL: http://ksqldb-server:8088
+      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: http://localhost:8088
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
 
 volumes:
   postgresql-data:

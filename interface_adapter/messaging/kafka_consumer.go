@@ -7,6 +7,7 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
+	"github.com/hdlproject/es-transaction-service/config"
 	"github.com/hdlproject/es-transaction-service/helper"
 )
 
@@ -22,9 +23,9 @@ type (
 
 var kafkaConsumer *KafkaConsumer
 
-func GetKafkaConsumer() (*KafkaConsumer, error) {
+func GetKafkaConsumer(config config.Kafka) (*KafkaConsumer, error) {
 	if kafkaConsumer == nil {
-		consumer, err := newKafkaConsumer()
+		consumer, err := newKafkaConsumer(config)
 		if err != nil {
 			return nil, helper.WrapError(err)
 		}
@@ -35,9 +36,9 @@ func GetKafkaConsumer() (*KafkaConsumer, error) {
 	return kafkaConsumer, nil
 }
 
-func newKafkaConsumer() (*KafkaConsumer, error) {
+func newKafkaConsumer(config config.Kafka) (*KafkaConsumer, error) {
 	consumer, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:29092",
+		"bootstrap.servers": fmt.Sprintf("%s:%s", config.Host, config.Port),
 		"group.id":          "test",
 		"auto.offset.reset": "smallest",
 	})

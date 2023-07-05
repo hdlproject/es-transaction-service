@@ -5,6 +5,7 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 
+	"github.com/hdlproject/es-transaction-service/config"
 	"github.com/hdlproject/es-transaction-service/helper"
 )
 
@@ -18,9 +19,9 @@ type (
 
 var kafkaProducer *KafkaProducer
 
-func GetKafkaProducer() (*KafkaProducer, error) {
+func GetKafkaProducer(config config.Kafka) (*KafkaProducer, error) {
 	if kafkaProducer == nil {
-		producer, err := newKafkaProducer()
+		producer, err := newKafkaProducer(config)
 		if err != nil {
 			return nil, helper.WrapError(err)
 		}
@@ -31,9 +32,9 @@ func GetKafkaProducer() (*KafkaProducer, error) {
 	return kafkaProducer, nil
 }
 
-func newKafkaProducer() (*KafkaProducer, error) {
+func newKafkaProducer(config config.Kafka) (*KafkaProducer, error) {
 	producer, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:29092",
+		"bootstrap.servers": fmt.Sprintf("%s:%s", config.Host, config.Port),
 		"client.id":         "localhost",
 		"acks":              "all",
 	})
