@@ -43,8 +43,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 		//result <- s
 	})
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 
 	// wait for the consumer to be ready
@@ -61,8 +60,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 		}
 	})
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 
 	select {

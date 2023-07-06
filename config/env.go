@@ -29,6 +29,9 @@ func newEnvConfig(configurable Configurable) (Configurable, error) {
 
 		"KAFKA_HOST",
 		"KAFKA_PORT",
+
+		"KSQLDB_HOST",
+		"KSQLDB_PORT",
 	}
 
 	var err error

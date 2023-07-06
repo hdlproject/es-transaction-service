@@ -30,6 +30,9 @@ func newDefaultConfig(configurable Configurable) Configurable {
 	viper.SetDefault("KAFKA_HOST", "127.0.0.1")
 	viper.SetDefault("KAFKA_PORT", "29092")
 
+	viper.SetDefault("KSQLDB_HOST", "127.0.0.1")
+	viper.SetDefault("KSQLDB_PORT", "8088")
+
 	return defaultConfig{
 		configurable: configurable,
 	}

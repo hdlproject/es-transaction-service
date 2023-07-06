@@ -15,6 +15,7 @@ type (
 		EventStorage EventStorage
 		EventBus     EventBus
 		Kafka        Kafka
+		KSQLDB       KSQLDB
 	}
 
 	EventStorage struct {
@@ -33,6 +34,11 @@ type (
 	}
 
 	Kafka struct {
+		Host string
+		Port string
+	}
+
+	KSQLDB struct {
 		Host string
 		Port string
 	}
@@ -109,6 +115,10 @@ func getConfig() (Config, error) {
 		Kafka: Kafka{
 			Host: viper.GetString("KAFKA_HOST"),
 			Port: viper.GetString("KAFKA_PORT"),
+		},
+		KSQLDB: KSQLDB{
+			Host: viper.GetString("KSQLDB_HOST"),
+			Port: viper.GetString("KSQLDB_PORT"),
 		},
 	}, nil
 }
