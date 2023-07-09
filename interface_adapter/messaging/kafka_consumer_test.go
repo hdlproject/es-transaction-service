@@ -25,7 +25,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	topics := []string{"test"}
+	topics := []string{"top-up-events"}
 
 	result := make(chan string)
 

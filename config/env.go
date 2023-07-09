@@ -32,6 +32,9 @@ func newEnvConfig(configurable Configurable) (Configurable, error) {
 
 		"KSQLDB_HOST",
 		"KSQLDB_PORT",
+
+		"KSR_HOST",
+		"KSR_PORT",
 	}
 
 	var err error

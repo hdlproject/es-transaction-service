@@ -11,11 +11,12 @@ import (
 
 type (
 	Config struct {
-		Port         string
-		EventStorage EventStorage
-		EventBus     EventBus
-		Kafka        Kafka
-		KSQLDB       KSQLDB
+		Port                string
+		EventStorage        EventStorage
+		EventBus            EventBus
+		Kafka               Kafka
+		KSQLDB              KSQLDB
+		KafkaSchemaRegistry KafkaSchemaRegistry
 	}
 
 	EventStorage struct {
@@ -39,6 +40,11 @@ type (
 	}
 
 	KSQLDB struct {
+		Host string
+		Port string
+	}
+
+	KafkaSchemaRegistry struct {
 		Host string
 		Port string
 	}
@@ -119,6 +125,10 @@ func getConfig() (Config, error) {
 		KSQLDB: KSQLDB{
 			Host: viper.GetString("KSQLDB_HOST"),
 			Port: viper.GetString("KSQLDB_PORT"),
+		},
+		KafkaSchemaRegistry: KafkaSchemaRegistry{
+			Host: viper.GetString("KSR_HOST"),
+			Port: viper.GetString("KSR_PORT"),
 		},
 	}, nil
 }

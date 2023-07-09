@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"time"
@@ -72,9 +71,6 @@ func (instance *KSQLDBClient) Insert(query string) error {
 	if err != nil {
 		return helper.WrapError(err)
 	}
-
-	body, _ := io.ReadAll(resp.Body)
-	fmt.Println(string(body))
 
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error with status code %d", resp.StatusCode)

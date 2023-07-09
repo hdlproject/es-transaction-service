@@ -33,6 +33,9 @@ func newDefaultConfig(configurable Configurable) Configurable {
 	viper.SetDefault("KSQLDB_HOST", "127.0.0.1")
 	viper.SetDefault("KSQLDB_PORT", "8088")
 
+	viper.SetDefault("KSR_HOST", "127.0.0.1")
+	viper.SetDefault("KSR_PORT", "8081")
+
 	return defaultConfig{
 		configurable: configurable,
 	}
