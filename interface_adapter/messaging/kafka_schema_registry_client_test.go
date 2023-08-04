@@ -24,14 +24,8 @@ func TestKSQLDBClient_AddSchema(t *testing.T) {
 	expectedSchema := KSRJSONSchema{
 		Type: "object",
 		Properties: map[string]KSRJSONSchemaProperty{
-			"id": {
+			"message": {
 				Type: "string",
-			},
-			"userid": {
-				Type: "integer",
-			},
-			"amount": {
-				Type: "integer",
 			},
 		},
 	}
@@ -41,7 +35,7 @@ func TestKSQLDBClient_AddSchema(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	topic := "top-up-events"
+	topic := "custom-events"
 	subject := fmt.Sprintf("%s-value", topic)
 	id, err := client.AddSchema(subject, string(jsonSchema))
 	if err != nil {

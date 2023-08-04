@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -9,6 +10,9 @@ import (
 
 func TestKafkaConsumer_Consume(t *testing.T) {
 	testTimeout := 10 * time.Minute
+
+	ctx, cancelFunc := context.WithTimeout(context.Background(), testTimeout)
+	defer cancelFunc()
 
 	kafkaConfig := config.Kafka{
 		Host: "localhost",
@@ -25,7 +29,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	topics := []string{"top-up-events"}
+	topics := []string{"custom-events"}
 
 	result := make(chan string)
 
@@ -40,7 +44,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 			return
 		}
 
-		//result <- s
+		result <- s
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -49,7 +53,7 @@ func TestKafkaConsumer_Consume(t *testing.T) {
 	// wait for the consumer to be ready
 	time.Sleep(3 * time.Second)
 
-	err = producer.Produce(topics[0], "test message 2", func(s string, err error) {
+	err = producer.Produce(ctx, topics[0], `{"message": "test message 2"}`, func(s string, err error) {
 		if err != nil {
 			t.Errorf("expect nil error")
 			return

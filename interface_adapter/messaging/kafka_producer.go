@@ -1,6 +1,7 @@
 package messaging
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -12,6 +13,8 @@ import (
 type (
 	KafkaProducer struct {
 		producer *kafka.Producer
+		admin    *KafkaAdmin
+		mapTopic map[string]struct{}
 	}
 
 	ProducerCallback func(string, error)
@@ -42,8 +45,15 @@ func newKafkaProducer(config config.Kafka) (*KafkaProducer, error) {
 		return nil, helper.WrapError(err)
 	}
 
+	admin, err := GetKafkaAdminFromProducer(producer)
+	if err != nil {
+		return nil, helper.WrapError(err)
+	}
+
 	return &KafkaProducer{
 		producer: producer,
+		admin:    admin,
+		mapTopic: make(map[string]struct{}),
 	}, nil
 }
 
@@ -64,7 +74,24 @@ func (instance *KafkaProducer) produce(topic, message string) (chan kafka.Event,
 	return deliveryChan, nil
 }
 
-func (instance *KafkaProducer) Produce(topic, message string, callback ProducerCallback) error {
+func (instance *KafkaProducer) registerTopic(topic string) (isRegistered bool) {
+	if _, ok := instance.mapTopic[topic]; !ok {
+		instance.mapTopic[topic] = struct{}{}
+		return true
+	}
+
+	return false
+}
+
+func (instance *KafkaProducer) Produce(ctx context.Context, topic, message string, callback ProducerCallback) error {
+	isRegistered := instance.registerTopic(topic)
+	if isRegistered {
+		err := instance.admin.CreateTopic(ctx, topic)
+		if err != nil {
+			return helper.WrapError(err)
+		}
+	}
+
 	deliveryChan, err := instance.produce(topic, message)
 	if err != nil {
 		return helper.WrapError(err)
