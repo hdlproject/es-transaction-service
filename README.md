@@ -23,3 +23,6 @@ kafka-configs --bootstrap-server localhost:9092 \
     --entity-name custom-events \
     --add-config confluent.value.schema.validation=true
 ```
+
+### Note
+- Still can do validation on the broker side. The error is `Delivery failed: Broker: Broker failed to validate record`.
