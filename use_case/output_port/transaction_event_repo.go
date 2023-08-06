@@ -1,9 +1,15 @@
 package output_port
 
-import "github.com/hdlproject/es-transaction-service/entity"
+import (
+	"context"
+
+	"github.com/hdlproject/es-transaction-service/entity"
+)
 
 type (
 	TransactionEventRepo interface {
-		Insert(event entity.TransactionEvent) (string, error)
+		Insert(ctx context.Context, event entity.TransactionEvent) (string, error)
+		GetTotalBalanceByUserID(ctx context.Context) (map[uint]uint64, error)
+		DeleteAll(ctx context.Context) error
 	}
 )

@@ -1,11 +1,15 @@
 package database
 
 import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"github.com/hdlproject/es-transaction-service/entity"
 	"github.com/hdlproject/es-transaction-service/helper"
 	"github.com/hdlproject/es-transaction-service/use_case/output_port"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type (
@@ -35,9 +39,13 @@ func NewTransactionEventRepo(mongoClient *MongoClient) output_port.TransactionEv
 	}
 }
 
-func (instance *transactionEventRepo) Insert(event entity.TransactionEvent) (string, error) {
-	data, _ := transactionEvent{}.getData(event)
-	result, err := instance.transactionEventCollection.InsertOne(mongoClient.Context, data)
+func (instance *transactionEventRepo) Insert(ctx context.Context, event entity.TransactionEvent) (string, error) {
+	data, err := transactionEvent{}.getData(event)
+	if err != nil {
+		return "", helper.WrapError(err)
+	}
+
+	result, err := instance.transactionEventCollection.InsertOne(ctx, data)
 	if err != nil {
 		return "", helper.WrapError(err)
 	}
@@ -45,16 +53,44 @@ func (instance *transactionEventRepo) Insert(event entity.TransactionEvent) (str
 	return result.InsertedID.(primitive.ObjectID).Hex(), nil
 }
 
-func (transactionEvent) getData(transactionEventEntity entity.TransactionEvent) (transactionEvent, error) {
-	var id primitive.ObjectID
-	var err error
-	if transactionEventEntity.ID != "" {
-		id, err = primitive.ObjectIDFromHex(transactionEventEntity.ID)
-		if err != nil {
-			return transactionEvent{}, helper.WrapError(err)
-		}
+func (instance *transactionEventRepo) GetTotalBalanceByUserID(ctx context.Context) (map[uint]uint64, error) {
+	cursor, err := instance.transactionEventCollection.Aggregate(ctx, mongo.Pipeline{
+		{
+			{"$group", bson.D{
+				{"_id", "$params.user_id"},
+				{"total_balance", bson.D{
+					{"$sum", "$params.amount"},
+				}},
+			}},
+		},
+	})
+	if err != nil {
+		return nil, helper.WrapError(err)
 	}
 
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		return nil, helper.WrapError(err)
+	}
+
+	aggregatedValue := make(map[uint]uint64)
+	for _, result := range results {
+		aggregatedValue[uint(result["_id"].(int64))] = uint64(result["total_balance"].(int64))
+	}
+
+	return aggregatedValue, nil
+}
+
+func (instance *transactionEventRepo) DeleteAll(ctx context.Context) error {
+	_, err := instance.transactionEventCollection.DeleteMany(ctx, bson.D{})
+	if err != nil {
+		return helper.WrapError(err)
+	}
+
+	return nil
+}
+
+func (transactionEvent) getData(transactionEventEntity entity.TransactionEvent) (transactionEvent, error) {
 	var params interface{}
 	switch v := transactionEventEntity.Params.(type) {
 	case entity.TopUp:
@@ -62,7 +98,6 @@ func (transactionEvent) getData(transactionEventEntity entity.TransactionEvent) 
 	}
 
 	return transactionEvent{
-		ID:     id,
 		Type:   string(transactionEventEntity.Type),
 		Params: params,
 	}, nil
