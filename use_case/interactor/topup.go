@@ -1,6 +1,8 @@
 package interactor
 
 import (
+	"context"
+
 	"github.com/hdlproject/es-transaction-service/entity"
 	"github.com/hdlproject/es-transaction-service/helper"
 	"github.com/hdlproject/es-transaction-service/use_case/output_port"
@@ -32,7 +34,7 @@ func NewTopUpUseCase(transactionEventRepo output_port.TransactionEventRepo,
 	}
 }
 
-func (instance *TopUp) TopUp(request TopUpRequest) (response TopUpResponse, err error) {
+func (instance *TopUp) TopUp(ctx context.Context, request TopUpRequest) (response TopUpResponse, err error) {
 	transactionEvent := entity.TransactionEvent{
 		Type: entity.TransactionTypeTopUp,
 		Params: entity.TopUp{
@@ -40,7 +42,7 @@ func (instance *TopUp) TopUp(request TopUpRequest) (response TopUpResponse, err 
 			Amount: request.Amount,
 		},
 	}
-	eventID, err := instance.transactionEventRepo.Insert(transactionEvent)
+	eventID, err := instance.transactionEventRepo.Insert(ctx, transactionEvent)
 	if err != nil {
 		return TopUpResponse{}, helper.WrapError(err)
 	}

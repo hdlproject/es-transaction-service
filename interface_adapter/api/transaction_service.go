@@ -1,6 +1,8 @@
 package api
 
 import (
+	"context"
+
 	"github.com/hdlproject/es-transaction-service/helper"
 	"github.com/hdlproject/es-transaction-service/use_case/interactor"
 )
@@ -17,10 +19,10 @@ func newTransactionService(topUpUseCase *interactor.TopUp) *transactionService {
 	}
 }
 
-func (instance *transactionService) topUp(request topUpRequest) (topUpResponse, error) {
+func (instance *transactionService) topUp(ctx context.Context, request topUpRequest) (topUpResponse, error) {
 	useCaseRequest := request.getUseCase()
 
-	useCaseResponse, err := instance.topUpUseCase.TopUp(useCaseRequest)
+	useCaseResponse, err := instance.topUpUseCase.TopUp(ctx, useCaseRequest)
 	if err != nil {
 		return topUpResponse{}, helper.WrapError(err)
 	}

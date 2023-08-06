@@ -1,13 +1,15 @@
 package api
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+
 	"github.com/hdlproject/es-transaction-service/config"
 	"github.com/hdlproject/es-transaction-service/interface_adapter/database"
 	"github.com/hdlproject/es-transaction-service/interface_adapter/messaging"
 	"github.com/hdlproject/es-transaction-service/use_case/interactor"
-	"log"
-	"net/http"
 )
 
 type (
@@ -54,7 +56,7 @@ func (instance *TransactionController) TopUp(ctx *gin.Context) {
 		return
 	}
 
-	response, err := instance.transactionService.topUp(request)
+	response, err := instance.transactionService.topUp(ctx, request)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(http.StatusInternalServerError, topUpResponse{Ok: false, Message: defaultProcessError})
