@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hdlproject/es-transaction-service/use_case/input_port"
 
 	"github.com/hdlproject/es-transaction-service/config"
 	"github.com/hdlproject/es-transaction-service/interface_adapter/database"
@@ -42,7 +43,7 @@ func RegisterTransactionAPI(router *gin.RouterGroup) {
 	transactionRouter.POST("/topup", transactionController.TopUp)
 }
 
-func NewTransactionController(topUpUseCase *interactor.TopUp) *TransactionController {
+func NewTransactionController(topUpUseCase input_port.TopUpUseCase) *TransactionController {
 	return &TransactionController{
 		transactionService: newTransactionService(
 			topUpUseCase,

@@ -10,22 +10,22 @@ import (
 )
 
 type (
-	TopUp struct {
+	topUp struct {
 		transactionEventRepo output_port.TransactionEventRepo
 		transactionPublisher output_port.TransactionPublisher
 	}
 )
 
 func NewTopUpUseCase(transactionEventRepo output_port.TransactionEventRepo,
-	transactionPublisher output_port.TransactionPublisher) *TopUp {
+	transactionPublisher output_port.TransactionPublisher) input_port.TopUpUseCase {
 
-	return &TopUp{
+	return &topUp{
 		transactionEventRepo: transactionEventRepo,
 		transactionPublisher: transactionPublisher,
 	}
 }
 
-func (instance *TopUp) TopUp(ctx context.Context, request input_port.TopUpRequest) (response input_port.TopUpResponse, err error) {
+func (instance *topUp) TopUp(ctx context.Context, request input_port.TopUpRequest) (response input_port.TopUpResponse, err error) {
 	transactionEvent := entity.TransactionEvent{
 		Type: entity.TransactionTypeTopUp,
 		Params: entity.TopUp{

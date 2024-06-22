@@ -2,10 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"io/ioutil"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hdlproject/es-transaction-service/helper"
-	"github.com/hdlproject/es-transaction-service/use_case/interactor"
-	"io/ioutil"
+	"github.com/hdlproject/es-transaction-service/use_case/input_port"
 )
 
 type (
@@ -29,8 +30,8 @@ func (topUpRequest) parse(ctx *gin.Context) (request topUpRequest, err error) {
 	return request, nil
 }
 
-func (instance topUpRequest) getUseCase() interactor.TopUpRequest {
-	return interactor.TopUpRequest{
+func (instance topUpRequest) getUseCase() input_port.TopUpRequest {
+	return input_port.TopUpRequest{
 		UserID: instance.UserID,
 		Amount: instance.Amount,
 	}

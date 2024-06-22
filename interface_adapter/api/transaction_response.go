@@ -1,6 +1,8 @@
 package api
 
-import "github.com/hdlproject/es-transaction-service/use_case/interactor"
+import (
+	"github.com/hdlproject/es-transaction-service/use_case/input_port"
+)
 
 type (
 	topUpResponse struct {
@@ -9,7 +11,7 @@ type (
 	}
 )
 
-func (topUpResponse) fromUseCase(response interactor.TopUpResponse) topUpResponse {
+func (topUpResponse) fromUseCase(response input_port.TopUpResponse) topUpResponse {
 	return topUpResponse{
 		Ok:      response.Ok,
 		Message: response.Message,

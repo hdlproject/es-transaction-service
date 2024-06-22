@@ -4,16 +4,16 @@ import (
 	"context"
 
 	"github.com/hdlproject/es-transaction-service/helper"
-	"github.com/hdlproject/es-transaction-service/use_case/interactor"
+	"github.com/hdlproject/es-transaction-service/use_case/input_port"
 )
 
 type (
 	transactionService struct {
-		topUpUseCase *interactor.TopUp
+		topUpUseCase input_port.TopUpUseCase
 	}
 )
 
-func newTransactionService(topUpUseCase *interactor.TopUp) *transactionService {
+func newTransactionService(topUpUseCase input_port.TopUpUseCase) *transactionService {
 	return &transactionService{
 		topUpUseCase: topUpUseCase,
 	}
