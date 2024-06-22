@@ -5,20 +5,11 @@ import (
 
 	"github.com/hdlproject/es-transaction-service/entity"
 	"github.com/hdlproject/es-transaction-service/helper"
+	"github.com/hdlproject/es-transaction-service/use_case/input_port"
 	"github.com/hdlproject/es-transaction-service/use_case/output_port"
 )
 
 type (
-	TopUpRequest struct {
-		UserID uint
-		Amount uint64
-	}
-
-	TopUpResponse struct {
-		Ok      bool
-		Message string
-	}
-
 	TopUp struct {
 		transactionEventRepo output_port.TransactionEventRepo
 		transactionPublisher output_port.TransactionPublisher
@@ -34,7 +25,7 @@ func NewTopUpUseCase(transactionEventRepo output_port.TransactionEventRepo,
 	}
 }
 
-func (instance *TopUp) TopUp(ctx context.Context, request TopUpRequest) (response TopUpResponse, err error) {
+func (instance *TopUp) TopUp(ctx context.Context, request input_port.TopUpRequest) (response input_port.TopUpResponse, err error) {
 	transactionEvent := entity.TransactionEvent{
 		Type: entity.TransactionTypeTopUp,
 		Params: entity.TopUp{
@@ -44,16 +35,16 @@ func (instance *TopUp) TopUp(ctx context.Context, request TopUpRequest) (respons
 	}
 	eventID, err := instance.transactionEventRepo.Insert(ctx, transactionEvent)
 	if err != nil {
-		return TopUpResponse{}, helper.WrapError(err)
+		return input_port.TopUpResponse{}, helper.WrapError(err)
 	}
 	transactionEvent.ID = eventID
 
 	err = instance.transactionPublisher.Publish(transactionEvent)
 	if err != nil {
-		return TopUpResponse{}, helper.WrapError(err)
+		return input_port.TopUpResponse{}, helper.WrapError(err)
 	}
 
-	return TopUpResponse{
+	return input_port.TopUpResponse{
 		Ok:      true,
 		Message: success,
 	}, nil

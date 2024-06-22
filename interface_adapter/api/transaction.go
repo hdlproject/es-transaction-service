@@ -31,13 +31,15 @@ func RegisterTransactionAPI(router *gin.RouterGroup) {
 		panic(err)
 	}
 
-	transactionRouter := router.Group("/transaction")
-	transactionRouter.POST("/topup", NewTransactionController(
+	transactionController := NewTransactionController(
 		interactor.NewTopUpUseCase(
 			database.NewTransactionEventRepo(mongoClient),
 			transactionPublisher,
 		),
-	).TopUp)
+	)
+
+	transactionRouter := router.Group("/transaction")
+	transactionRouter.POST("/topup", transactionController.TopUp)
 }
 
 func NewTransactionController(topUpUseCase *interactor.TopUp) *TransactionController {
