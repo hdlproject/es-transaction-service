@@ -29,7 +29,6 @@ func TestKSQLDBClient_AddSchema(t *testing.T) {
 			},
 		},
 	}
-
 	jsonSchema, err := json.Marshal(expectedSchema)
 	if err != nil {
 		t.Fatal(err)
@@ -46,7 +45,28 @@ func TestKSQLDBClient_AddSchema(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if diff := cmp.Diff(expectedSchema, schema); diff != "" {
+		t.Fatalf("(-want/+got)\n%s", diff)
+	}
 
+	expectedSchema = KSRJSONSchema{
+		Type: "string",
+	}
+	jsonSchema, err = json.Marshal(expectedSchema)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	subject = fmt.Sprintf("%s-key", topic)
+	id, err = client.AddSchema(subject, string(jsonSchema))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	schema, err = client.GetSchemaById(id)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if diff := cmp.Diff(expectedSchema, schema); diff != "" {
 		t.Fatalf("(-want/+got)\n%s", diff)
 	}

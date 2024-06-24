@@ -47,7 +47,7 @@ func (instance *KafkaAdmin) CreateTopic(ctx context.Context, topic string) error
 			NumPartitions:     3,
 			ReplicationFactor: 1,
 			Config: map[string]string{
-				"confluent.value.schema.validation": "true",
+				"confluent.value.schema.validation": "false",
 			},
 		},
 	})

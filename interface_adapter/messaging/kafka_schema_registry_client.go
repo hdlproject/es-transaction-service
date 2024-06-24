@@ -30,7 +30,7 @@ type (
 
 	KSRJSONSchema struct {
 		Type       string                           `json:"type"`
-		Properties map[string]KSRJSONSchemaProperty `json:"properties"`
+		Properties map[string]KSRJSONSchemaProperty `json:"properties,omitempty"`
 	}
 
 	KSRJSONSchemaProperty struct {
