@@ -46,6 +46,7 @@ kafka-configs --bootstrap-server localhost:9092 \
 $ docker exec -it ksqldb-cli ksql http://ksqldb-server:8088
 > CREATE STREAM topUpEvents (id VARCHAR, userId INT, amount BIGINT)
     WITH (kafka_topic='top-up-events', value_format='json', partitions=1);
+> ... other scripts
 ```
 
 ### TODO
