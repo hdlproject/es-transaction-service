@@ -68,10 +68,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
-
   kafka:
     image: confluentinc/cp-server:latest
-    container_name: kafka
     networks:
       - kafka
     depends_on:
@@ -89,10 +87,42 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       KAFKA_MIN_INSYNC_REPLICAS: 1
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:latest
+    networks:
+      - kafka
+    depends_on:
+      - kafka
+      - schema-registry
+      - ksqldb-server
+    ports:
+      - 9021:9021
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092
+      CONTROL_CENTER_KSQL_KSQLDB1_URL: http://ksqldb-server:8088
+      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: http://localhost:8088
+      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      PORT: 9021
+
+  schema-registry:
+    image: confluentinc/cp-schema-registry:latest
+    networks:
+      - kafka
+    depends_on:
+      - kafka
+    ports:
+      - 8081:8081
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:latest
-    container_name: ksqldb-server
     networks:
       - kafka
     depends_on:
@@ -124,53 +154,6 @@ services:
       - ksqldb-server
     entrypoint: /bin/sh
     tty: true
-
-#  kafka-ui:
-#    image: provectuslabs/kafka-ui:latest
-#    networks:
-#      - kafka
-#    depends_on:
-#      - kafka
-#    ports:
-#      - 8080:8080
-#    environment:
-#      DYNAMIC_CONFIG_ENABLED: 'true'
-#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-
-  control-center:
-    image: confluentinc/cp-enterprise-control-center:latest
-    networks:
-      - kafka
-    depends_on:
-      - kafka
-      - ksqldb-server
-      - schema-registry
-    ports:
-      - 9021:9021
-    environment:
-      CONTROL_CENTER_BOOTSTRAP_SERVERS: kafka:9092
-      CONTROL_CENTER_KSQL_KSQLDB1_URL: http://ksqldb-server:8088
-      CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: http://localhost:8088
-      CONTROL_CENTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONTROL_CENTER_REPLICATION_FACTOR: 1
-      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
-      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
-      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
-      PORT: 9021
-
-  schema-registry:
-    image: confluentinc/cp-schema-registry:latest
-    container_name: schema-registry
-    networks:
-      - kafka
-    depends_on:
-      - kafka
-    ports:
-      - 8081:8081
-    environment:
-      SCHEMA_REGISTRY_HOST_NAME: schema-registry
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
-      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
 
 volumes:
   postgresql-data:
