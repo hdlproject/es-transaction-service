@@ -19,6 +19,7 @@ This feature is possible by the help of the [viper package](https://github.com/s
 This project works with some storages to function properly. Here is the list:
 - MongoDB to store the transaction events (e.g. top-up balance).
 - RabbitMQ to broadcast the events to the other system members.
+
 Beside the main external dependencies above, this project also contains alternative dependencies such as:
 - PostgreSQL to store the transaction events, but it differs from MongoDB cause it requires a predefined schema.
 - Kafka to broadcast the events, but it differs from RabbitMQ cause it has higher performance and more complex features.
